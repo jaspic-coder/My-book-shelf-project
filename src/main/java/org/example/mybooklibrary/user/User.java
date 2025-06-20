@@ -1,6 +1,8 @@
 package org.example.mybooklibrary.user;
+
 import jakarta.persistence.*;
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 @Data
@@ -25,4 +27,5 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 }
+
 

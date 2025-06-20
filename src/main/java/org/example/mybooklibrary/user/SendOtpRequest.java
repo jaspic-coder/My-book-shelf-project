@@ -3,9 +3,7 @@ package org.example.mybooklibrary.user;
 import lombok.Data;
 
 @Data
-public class UserDto {
-    private String username;
+public class SendOtpRequest {
     private String email;
-    private String password;
-
 }
+

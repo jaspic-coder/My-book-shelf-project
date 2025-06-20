@@ -1,5 +1,7 @@
 package org.example.mybooklibrary.Borrow;
 
+import org.example.mybooklibrary.book.BookRepository;
+import org.example.mybooklibrary.book.Books;
 import org.example.mybooklibrary.user.User;
 import org.example.mybooklibrary.user.UserRepository;
 
@@ -26,16 +28,16 @@ public class BorrowService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Book book = bookRepository.findById(bookId)
+        Books books = bookRepository.findById(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
-        Borrows borrow = new Borrows();
-        borrow.setUser(user);
-        borrow.setBook(book);
-        borrow.setBorrowDate(LocalDateTime.now());
-        borrow.setStatus("BORROWED");
+        Borrows borrows = new Borrows();
+        borrows.setUser(user);
+        borrows.setBooks(books);
+        borrows.setBorrowDate(LocalDateTime.now());
+        borrows.setStatus("BORROWED");
 
-        return borrowRepository.save(borrow);
+        return borrowRepository.save(borrows);
     }
 
     public List<Borrows> getAllBorrows() {

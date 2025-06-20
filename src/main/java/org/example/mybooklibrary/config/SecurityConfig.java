@@ -31,6 +31,7 @@ public class SecurityConfig {
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/auth/otp/**",
+                                "/api/books/**",              // ✅ Add this line
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
@@ -39,6 +40,11 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
+
+
+
+
+
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
