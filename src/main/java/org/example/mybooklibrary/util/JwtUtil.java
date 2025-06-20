@@ -1,6 +1,7 @@
 package org.example.mybooklibrary.util;
 
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -9,6 +10,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
+
     @Value("${spring.security.jwt.secret}")
     private String secret;
 
@@ -16,11 +18,14 @@ public class JwtUtil {
     private long expiration;
 
     public String generateToken(String email) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expiration);
+
         return Jwts.builder()
-                .subject(email)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .setSubject(email)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
     }
 
