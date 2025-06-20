@@ -1,36 +1,45 @@
 package org.example.mybooklibrary.user;
 
-
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    private final AuthService authService;
 
-    public AuthController(AuthService authService) {
+    private final AuthService authService;
+    private final OtpService otpService; // ✅ final and injected
+
+    // ✅ Constructor injection
+    public AuthController(AuthService authService, OtpService otpService) {
         this.authService = authService;
+        this.otpService = otpService;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody Map<String, String> request) {
+    public ResponseEntity<User> register(@RequestBody Register request) {
         User user = authService.registerUser(
-                request.get("email"),
-                request.get("password"),
-                request.get("name")
+                request.getEmail(),
+                request.getPassword(),
+                request.getUsername()
         );
         return ResponseEntity.ok(user);
     }
 
+    @PostMapping("/otp/send")
+    public ResponseEntity<String> sendOTP(@RequestBody EmailRequest request) {
+        String otp = otpService.sendOtp(request.getEmail());
+        return ResponseEntity.ok("OTP sent: " + otp); // In production, don't return OTP to client
+    }
+
+
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> login(@RequestBody Login request) {
         try {
             String token = authService.loginUser(
-                    request.get("email"),
-                    request.get("password")
+                    request.getEmail(),
+                    request.getPassword()
             );
             return ResponseEntity.ok(token);
         } catch (Exception e) {
@@ -38,18 +47,20 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/otp/send")
-    public ResponseEntity<String> sendOTP(@RequestBody Map<String, String> request) {
-        String otp = authService.generateOTP(request.get("email"));
-        return ResponseEntity.ok("OTP sent: " + otp);
-    }
-
     @PostMapping("/otp/verify")
-    public ResponseEntity<Boolean> verifyOTP(@RequestBody Map<String, String> request) {
-        boolean verified = authService.verifyOTP(
-                request.get("email"),
-                request.get("otp")
-        );
-        return ResponseEntity.ok(verified);
+    public ResponseEntity<?> verifyOtp(@RequestBody OtpVerication request) {
+        try {
+            boolean isValid = otpService.verifyOtp(request.getEmail(), request.getOtp().trim());
+
+            if (isValid) {
+                return ResponseEntity.ok("✅ OTP verified successfully.");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired OTP.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("OTP verification failed.");
+        }
     }
 }
+

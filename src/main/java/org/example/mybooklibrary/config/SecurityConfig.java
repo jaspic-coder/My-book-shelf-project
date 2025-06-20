@@ -28,9 +28,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/auth/**",             // Allow register/login/otp routes
-                                "/swagger-ui.html",
+                                "/api/auth/register",
+                                "/api/auth/login",
+                                "/api/auth/otp/**",
                                 "/swagger-ui/**",
+                                "/swagger-ui.html",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/webjars/**"
