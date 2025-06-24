@@ -1,11 +1,7 @@
 package org.example.mybooklibrary.user;
 
-import org.example.mybooklibrary.user.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -17,25 +13,22 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
-        User user = authService.registerUser(
-                request.getEmail(),
-                request.getPassword(),
-                request.getUserName()
-        );
-        return ResponseEntity.ok(user);
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        try {
+            User user = authService.registerUser(request);
+            return ResponseEntity.ok(user);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
-            String token = authService.loginUser(
-                    request.getEmail(),
-                    request.getPassword()
-            );
+            String token = authService.loginUser(request.getEmail(), request.getPassword());
             return ResponseEntity.ok(token);
-        } catch (Exception e) {
-            return ResponseEntity.status(403).body("Login failed: " + e.getMessage());
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(403).body(ex.getMessage());
         }
     }
 
@@ -47,11 +40,7 @@ public class AuthController {
 
     @PostMapping("/otp/verify")
     public ResponseEntity<Boolean> verifyOTP(@RequestBody OtpRequest request) {
-        boolean verified = authService.verifyOTP(
-                request.getEmail(),
-                request.getOtp()
-        );
+        boolean verified = authService.verifyOTP(request.getEmail(), request.getOtp());
         return ResponseEntity.ok(verified);
     }
 }
-

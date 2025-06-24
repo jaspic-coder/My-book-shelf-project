@@ -21,14 +21,22 @@ public class AuthService {
         this.jwtUtil = jwtUtil;
     }
 
-    public User registerUser(String email, String password, String name) {
-        if (userRepository.findByEmail(email).isPresent()) {
+    public User registerUser(RegisterRequest request) {
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new RuntimeException("Passwords do not match");
+        }
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
         }
+
         User user = new User();
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setName(name);
+        user.setRegNo(request.getRegNo());
+        user.setCollegeRegNo(request.getCollegeRegNo());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setName(request.getUserName());
+        user.setRole(request.getRole());
         user.setVerified(false);
         return userRepository.save(user);
     }
