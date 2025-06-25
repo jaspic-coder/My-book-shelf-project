@@ -1,7 +1,8 @@
 package org.example.mybooklibrary.Borrow;
 
-import org.example.mybooklibrary.book.Books;
+
 import org.example.mybooklibrary.book.BookRepository;
+import org.example.mybooklibrary.book.Books;
 import org.example.mybooklibrary.user.User;
 import org.example.mybooklibrary.user.UserRepository;
 
@@ -18,6 +19,7 @@ public class BorrowService {
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
 
+
     public BorrowService(BorrowRepository borrowRepository, UserRepository userRepository, BookRepository bookRepository) {
         this.borrowRepository = borrowRepository;
         this.userRepository = userRepository;
@@ -33,6 +35,7 @@ public class BorrowService {
 
         Borrows borrow = new Borrows();
         borrow.setUser(user);
+        borrow.setBooks(book);
         borrow.setBorrowDate(LocalDateTime.now());
         borrow.setStatus("BORROWED");
 
@@ -57,4 +60,3 @@ public class BorrowService {
         return borrowRepository.save(borrow);
     }
 }
-

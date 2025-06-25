@@ -30,23 +30,32 @@ public class JwtUtil {
     }
 
     public String getEmailFromToken(String token) {
+
         return Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
+                .setSigningKey(secret.getBytes())
+                .parseClaimsJws(token)
+                .getBody()
                 .getSubject();
+
     }
 
     public boolean validateToken(String token) {
+
         try {
             Jwts.parser()
-                    .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
-                    .build()
-                    .parseSignedClaims(token);
+                    .setSigningKey(secret.getBytes())
+                    .parseClaimsJws(token);
             return true;
         } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }
 }
+
+
+
+
+
+
+

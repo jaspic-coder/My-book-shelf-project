@@ -32,8 +32,8 @@ public class OtpService {
         }
 
         String trimmedOtp = otpInput.trim();
-        System.out.println("📩 Stored OTP: " + storedOtp);
-        System.out.println("🧾 Received OTP: " + trimmedOtp);
+        System.out.println("Stored OTP: " + storedOtp);
+        System.out.println("Received OTP: " + trimmedOtp);
 
         boolean isValid = trimmedOtp.equals(storedOtp);
 
