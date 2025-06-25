@@ -18,6 +18,7 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
 
     public SecurityConfig(JwtUtil jwtUtil) {
+
         this.jwtUtil = jwtUtil;
     }
 
@@ -28,16 +29,23 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
 
+
                                 .requestMatchers(
                                         "/api/auth/register",
                                         "/api/auth/login",
                                         "/api/auth/otp/**",
-                                        "/api/books/**", // <- You permit these
+                                        "/api/books/**",
                                         "/swagger-ui/**",
-                                        "/v3/api-docs/**"
+                                        "/swagger-ui.html",
+                                        "/swagger-ui/index.html",
+                                        "/swagger-resources/**",
+                                        "/v3/api-docs/**",
+                                        "/webjars/**"
                                 ).permitAll()
                                 .anyRequest().authenticated()
-                )
+                        )
+
+
 
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
