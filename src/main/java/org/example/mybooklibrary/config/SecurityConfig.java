@@ -18,7 +18,6 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
 
     public SecurityConfig(JwtUtil jwtUtil) {
-
         this.jwtUtil = jwtUtil;
     }
 
@@ -28,25 +27,18 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-
-
-                                .requestMatchers(
-                                        "/api/auth/register",
-                                        "/api/auth/login",
-                                        "/api/auth/otp/**",
-                                        "/api/books/**",
-                                        "/swagger-ui/**",
-                                        "/swagger-ui.html",
-                                        "/swagger-ui/index.html",
-                                        "/swagger-resources/**",
-                                        "/v3/api-docs/**",
-                                        "/webjars/**"
-                                ).permitAll()
-                                .anyRequest().authenticated()
-                        )
-
-
-
+                        .requestMatchers(
+                                "/api/auth/register",
+                                "/api/auth/login",
+                                "/api/auth/otp/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
