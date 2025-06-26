@@ -1,19 +1,23 @@
 package org.example.mybooklibrary.Notes;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class NoteService {
 
-    @Autowired
-    private NoteRepository noteRepository;
+    private final NoteRepository noteRepository;
 
-    public Note createNote(Note note) {
-        return noteRepository.save(note);
+    @Autowired
+    public NoteService(NoteRepository noteRepository) {
+        this.noteRepository = noteRepository;
+    }
+
+    public void saveNote(Note note) {
+        noteRepository.save(note);
     }
 
     public List<Note> getNotesByUserId(Long userId) {
@@ -42,4 +46,3 @@ public class NoteService {
         noteRepository.deleteById(id);
     }
 }
-
