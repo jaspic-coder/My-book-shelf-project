@@ -5,11 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.mybooklibrary.payment.Payment;
 
 import java.time.LocalDate;
-import java.util.List;
-
 @Entity
 @Getter
 @Setter
@@ -29,6 +26,5 @@ public class Books {
     private String ISBN;
     private String category;
     private Boolean availabilityStatus=true ;
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
-    private List<Payment> payments;
+
 }

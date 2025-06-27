@@ -53,6 +53,7 @@ public class AuthService {
             throw new RuntimeException("User is not verified");
         }
 
+
         return jwtUtil.generateToken(email);
     }
 
