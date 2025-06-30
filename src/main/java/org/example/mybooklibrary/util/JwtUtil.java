@@ -1,7 +1,6 @@
 package org.example.mybooklibrary.util;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -30,32 +29,24 @@ public class JwtUtil {
     }
 
     public String getEmailFromToken(String token) {
-
-        return Jwts.parser()
-                .setSigningKey(secret.getBytes())
+        return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
+                .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
-
     }
 
     public boolean validateToken(String token) {
-
         try {
-            Jwts.parser()
-                    .setSigningKey(secret.getBytes())
+            Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
+                    .build()
                     .parseClaimsJws(token);
             return true;
-        } catch (Exception e) {
+        } catch (JwtException | IllegalArgumentException e) {
             e.printStackTrace();
             return false;
         }
     }
 }
-
-
-
-
-
-
-
