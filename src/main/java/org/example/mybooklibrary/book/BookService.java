@@ -2,9 +2,16 @@ package org.example.mybooklibrary.book;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -67,5 +74,28 @@ public class BookService {
                 book.getCategory(),
                 book.getAvailabilityStatus()
         );
+    }
+
+    public String uploadCoverFromUrl(Long bookId, String imageUrl) throws IOException {
+        Books book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+
+        String fileName = "cover_" + bookId + "_" + System.currentTimeMillis() + ".jpg";
+        String uploadDir = "uploads/";
+        Path destination = Paths.get(uploadDir, fileName);
+
+        Files.createDirectories(destination.getParent());
+
+        try (InputStream in = new URL(imageUrl).openStream()) {
+            Files.copy(in, destination, StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the actual error
+            throw new IOException("Could not download image from URL: " + imageUrl);
+        }
+
+        book.setCoverImageUrl(uploadDir + fileName);
+        bookRepository.save(book);
+
+        return "Cover image downloaded and linked successfully.";
     }
 }

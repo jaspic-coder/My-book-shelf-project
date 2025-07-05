@@ -26,5 +26,7 @@ public class Books {
     private String ISBN;
     private String category;
     private Boolean availabilityStatus=true ;
+    @Column
+    private String coverImageUrl;
 
 }
