@@ -52,8 +52,8 @@ public class BookController {
         try {
             String message = bookService.uploadCoverFromUrl(id, request.getFile());
             return ResponseEntity.ok(message);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download cover image.");
+        } catch (ImageDownloadException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
