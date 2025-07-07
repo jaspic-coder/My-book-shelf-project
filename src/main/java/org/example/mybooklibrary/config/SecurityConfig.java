@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll()
+                        // Public endpoints
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login",
@@ -41,6 +41,14 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
+
+                        // Allow anyone to GET books
+                        .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll()
+
+                        // Allow only authenticated users with role ADMIN or STUDENT to POST books
+                        .requestMatchers(HttpMethod.POST, "/api/books/**").hasAnyRole("ADMIN", "STUDENT")
+
+                        // Any other request must be authenticated
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);

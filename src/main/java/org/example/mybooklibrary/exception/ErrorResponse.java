@@ -1,20 +1,18 @@
 package org.example.mybooklibrary.exception;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
-@Getter
-@Setter
+import java.util.List;
+
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ErrorResponse {
-    private LocalDateTime timestamp;
     private int status;
-    private String error;
     private String message;
-    private String path;
-
+    private String path; // /api/user
+    private List<String> errors;
+    private LocalDateTime timestamp;
 }
