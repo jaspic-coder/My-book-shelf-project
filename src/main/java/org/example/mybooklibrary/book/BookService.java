@@ -1,6 +1,7 @@
 package org.example.mybooklibrary.book;
 
 import lombok.RequiredArgsConstructor;
+import org.example.mybooklibrary.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,13 +35,13 @@ public class BookService {
 
     public BookResponse getBookById(Long id) {
         Books book = bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Book with ID " + id + " not found"));
         return mapToResponse(book);
     }
 
     public BookResponse updateBook(Long id, BookRequest request) {
         Books book = bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Book with ID " + id + " not found"));
 
         book.setTitle(request.getTitle());
         book.setAuthor(request.getAuthor());
@@ -53,6 +54,9 @@ public class BookService {
     }
 
     public void deleteBook(Long id) {
+        if (!bookRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Book with ID " + id + " not found");
+        }
         bookRepository.deleteById(id);
     }
 
@@ -62,7 +66,7 @@ public class BookService {
                 book.getTitle(),
                 book.getAuthor(),
                 book.getISBN(),
-                null, // You don't have a publisher field in Books entity
+                null,
                 book.getPublishDate(),
                 book.getCategory(),
                 book.getAvailabilityStatus()

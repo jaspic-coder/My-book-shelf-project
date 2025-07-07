@@ -1,5 +1,6 @@
 package org.example.mybooklibrary.config;
 
+import org.example.mybooklibrary.security.JwtAuthenticationEntryPoint;  // <-- import your new entry point
 import org.example.mybooklibrary.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,9 +17,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;  // Add this
 
-    public SecurityConfig(JwtUtil jwtUtil) {
+    public SecurityConfig(JwtUtil jwtUtil, JwtAuthenticationEntryPoint authenticationEntryPoint) {
         this.jwtUtil = jwtUtil;
+        this.authenticationEntryPoint = authenticationEntryPoint;  // Initialize here
     }
 
     @Bean
@@ -39,6 +42,8 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint))  // Add this for handling 401 errors
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
