@@ -67,6 +67,19 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create reset token: " + e.getMessage());
         }
     }
+    @GetMapping("/reset-password")
+    public ResponseEntity<?> validateResetToken(@RequestParam String token) {
+        try {
+            boolean valid = authService.isResetTokenValid(token);
+            if (valid) {
+                return ResponseEntity.ok("Token is valid. You can reset your password.");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token is invalid or expired.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error validating token.");
+        }
+    }
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
