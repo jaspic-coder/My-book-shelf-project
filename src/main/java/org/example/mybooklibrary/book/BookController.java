@@ -1,19 +1,10 @@
 package org.example.mybooklibrary.book;
 
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/books")
 @RequiredArgsConstructor
@@ -25,6 +16,7 @@ public class BookController {
     public ResponseEntity<BookResponse> createBook(@RequestBody BookRequest request) {
         return ResponseEntity.ok(bookService.createBook(request));
     }
+
 
     @GetMapping
     public ResponseEntity<List<BookResponse>> getAllBooks() {
@@ -46,18 +38,11 @@ public class BookController {
         bookService.deleteBook(id);
         return ResponseEntity.noContent().build();
     }
-    @Operation(summary = "Upload book cover image from a remote URL")
-    @PostMapping("/{id}/upload-cover-from-url")
-    public ResponseEntity<String> uploadCoverFromUrl(@PathVariable Long id, @RequestBody CoverUploadRequest request) {
-        try {
-            String message = bookService.uploadCoverFromUrl(id, request.getFile());
-            return ResponseEntity.ok(message);
-        } catch (ImageDownloadException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+
     }
 
 
-}
+
+
 
 

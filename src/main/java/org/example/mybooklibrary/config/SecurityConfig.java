@@ -42,13 +42,9 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
 
-                        // Allow anyone to GET books
-                        .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll()
-
-                        // Allow only authenticated users with role ADMIN or STUDENT to POST books
                         .requestMatchers(HttpMethod.POST, "/api/books/**").hasAnyRole("ADMIN", "STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/books/**").hasAnyAuthority("ADMIN", "STUDENT")
 
-                        // Any other request must be authenticated
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);

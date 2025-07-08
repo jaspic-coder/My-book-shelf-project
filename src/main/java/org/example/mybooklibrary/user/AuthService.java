@@ -1,5 +1,8 @@
 package org.example.mybooklibrary.user;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.example.mybooklibrary.config.EmailService;
 import org.example.mybooklibrary.exception.ResourceNotFoundException;
 import org.example.mybooklibrary.passwordresettoken.PasswordResetToken;
@@ -9,10 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class AuthService {
@@ -69,11 +69,18 @@ public class AuthService {
         return jwtUtil.generateToken(email);
     }
 
-    public String generateOTP(String email) {
-        String otp = String.format("%06d", new Random().nextInt(999999));
-        otpStore.put(email, otp);
-        return otp;
+    public String generateToken(String email) {
+        long nowMillis = System.currentTimeMillis();
+        long expirationMillis = nowMillis + 1000 * 60 * 60 * 10; // 10 hours validity
+
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date(nowMillis))
+                .setExpiration(new Date(expirationMillis))
+                .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)
+                .compact();
     }
+
 
     public boolean verifyOtp(String email, String otp) {
         String storedOtp = otpStore.get(email);

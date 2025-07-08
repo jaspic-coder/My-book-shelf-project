@@ -81,42 +81,9 @@ public class BookService {
 
 
 
-    public String uploadCoverFromUrl(Long bookId, String imageUrl) {
-        Books book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new BookNotFoundException("Book with ID " + bookId + " not found."));
 
-        String fileName = "cover_" + bookId + "_" + Instant.now().toEpochMilli() + ".jpg";
-        String uploadDir = "uploads/";
-        Path destination = Paths.get(uploadDir, fileName);
 
-        try {
-            downloadImage(imageUrl, destination);
-        } catch (IOException e) {
-            throw new ImageDownloadException("Failed to download image from URL: " + imageUrl);
-        }
 
-        book.setCoverImageUrl(uploadDir + fileName);
-        bookRepository.save(book);
-
-        return "Cover image downloaded and linked successfully.";
-    }
-
-    private void downloadImage(String imageUrl, Path destination) throws IOException {
-        Files.createDirectories(destination.getParent());
-
-        URL url = new URL(imageUrl);
-        URLConnection connection = url.openConnection();
-        connection.setRequestProperty("User-Agent", "Mozilla/5.0"); // Optional: avoids 403 from some CDNs
-
-        String contentType = connection.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new ImageDownloadException("URL does not point to an image: " + imageUrl);
-        }
-
-        try (InputStream in = connection.getInputStream()) {
-            Files.copy(in, destination, StandardCopyOption.REPLACE_EXISTING);
-        }
     }
 
 
-}
