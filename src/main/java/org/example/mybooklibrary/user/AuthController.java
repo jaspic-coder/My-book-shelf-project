@@ -1,5 +1,6 @@
 package org.example.mybooklibrary.user;
 
+import org.example.mybooklibrary.passwordresettoken.ResetPasswordRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,13 +33,23 @@ public class AuthController {
         return ResponseEntity.ok("OTP sent: " + otp);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            String token = authService.loginUser(request.getEmail(), request.getPassword());
+            return ResponseEntity.ok(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body("Login failed: " + e.getMessage());
+        }
+    }
+
     @PostMapping("/otp/verify")
     public ResponseEntity<?> verifyOtp(@RequestBody OtpVerication request) {
         try {
             boolean isValid = otpService.verifyOtp(request.getEmail(), request.getOtp().trim());
 
             if (isValid) {
-                return ResponseEntity.ok("✅ OTP verified successfully.");
+                return ResponseEntity.ok("OTP verified successfully.");
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired OTP.");
             }
@@ -48,25 +59,36 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        // ✅ No more try/catch, let exceptions like InvalidCredentialsException bubble up
-        String token = authService.loginUser(request.getEmail(), request.getPassword());
-        return ResponseEntity.ok(token);
-    }
-
-    // ✅ Forgot Password Endpoint
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
-        String result = authService.forgotPassword(request.getEmail());
-        return ResponseEntity.ok(result);
+    public ResponseEntity<?> forgotPassword(@RequestBody EmailRequest request) {
+        try {
+            authService.sendPasswordResetEmail(request.getEmail());
+            return ResponseEntity.ok("Password reset token created and sent.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create reset token: " + e.getMessage());
+        }
+    }
+    @GetMapping("/reset-password")
+    public ResponseEntity<?> validateResetToken(@RequestParam String token) {
+        try {
+            boolean valid = authService.isResetTokenValid(token);
+            if (valid) {
+                return ResponseEntity.ok("Token is valid. You can reset your password.");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token is invalid or expired.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error validating token.");
+        }
     }
 
-    // ✅ Reset Password Endpoint
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
-        String result = authService.resetPassword(request.getEmail(), request.getNewPassword());
-        return ResponseEntity.ok(result);
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+        try {
+            authService.resetPassword(request.getToken(), request.getNewPassword(), request.getConfirmPassword());
+            return ResponseEntity.ok("Password has been reset successfully.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Password reset failed: " + e.getMessage());
+        }
     }
 }
-
