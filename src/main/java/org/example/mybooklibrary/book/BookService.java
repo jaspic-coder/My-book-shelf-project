@@ -1,6 +1,7 @@
 package org.example.mybooklibrary.book;
 
 import lombok.RequiredArgsConstructor;
+import org.example.mybooklibrary.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,23 +25,21 @@ public class BookService {
         book = bookRepository.save(book);
         return mapToResponse(book);
     }
-
     public List<BookResponse> getAllBooks() {
         return bookRepository.findAll()
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
-
     public BookResponse getBookById(Long id) {
         Books book = bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Book with ID " + id + " is not here"));
         return mapToResponse(book);
     }
 
     public BookResponse updateBook(Long id, BookRequest request) {
         Books book = bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Book with ID " + id + " is not here"));
 
         book.setTitle(request.getTitle());
         book.setAuthor(request.getAuthor());
@@ -53,6 +52,9 @@ public class BookService {
     }
 
     public void deleteBook(Long id) {
+        if (!bookRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Book with ID " + id + " is not here");
+        }
         bookRepository.deleteById(id);
     }
 
@@ -62,7 +64,7 @@ public class BookService {
                 book.getTitle(),
                 book.getAuthor(),
                 book.getISBN(),
-                null, // You don't have a publisher field in Books entity
+                null,
                 book.getPublishDate(),
                 book.getCategory(),
                 book.getAvailabilityStatus()
