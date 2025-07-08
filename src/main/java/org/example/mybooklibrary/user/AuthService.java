@@ -3,6 +3,8 @@ package org.example.mybooklibrary.user;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
+import lombok.Setter;
 import org.example.mybooklibrary.config.EmailService;
 import org.example.mybooklibrary.exception.ResourceNotFoundException;
 import org.example.mybooklibrary.passwordresettoken.PasswordResetToken;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
 @Service
 public class AuthService {
     private final UserRepository userRepository;
@@ -53,6 +56,7 @@ public class AuthService {
         return userRepository.save(user);
     }
 
+
     public String loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Email is not registered"));
@@ -64,8 +68,8 @@ public class AuthService {
         if (!user.isVerified()) {
             throw new IllegalArgumentException("User is not verified. Please verify your account.");
         }
+        return jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
-        return jwtUtil.generateToken(email); // ✅ Use JwtUtil here
     }
 
     public boolean verifyOtp(String email, String otp) {
