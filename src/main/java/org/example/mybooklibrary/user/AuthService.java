@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-
 @Service
 public class AuthService {
     private final UserRepository userRepository;
@@ -66,21 +65,8 @@ public class AuthService {
             throw new IllegalArgumentException("User is not verified. Please verify your account.");
         }
 
-        return jwtUtil.generateToken(email);
+        return jwtUtil.generateToken(email); // ✅ Use JwtUtil here
     }
-
-    public String generateToken(String email) {
-        long nowMillis = System.currentTimeMillis();
-        long expirationMillis = nowMillis + 1000 * 60 * 60 * 10; // 10 hours validity
-
-        return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date(nowMillis))
-                .setExpiration(new Date(expirationMillis))
-                .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)
-                .compact();
-    }
-
 
     public boolean verifyOtp(String email, String otp) {
         String storedOtp = otpStore.get(email);

@@ -2,11 +2,13 @@ package org.example.mybooklibrary.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,4 +47,16 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
+    public String generateToken(String email) {
+        long nowMillis = System.currentTimeMillis();
+        long expirationMillis = nowMillis + 1000 * 60 * 60 * 10;
+
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date(nowMillis))
+                .setExpiration(new Date(expirationMillis))
+                .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
 }
