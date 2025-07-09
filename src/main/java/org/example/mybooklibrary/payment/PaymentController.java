@@ -1,26 +1,33 @@
 package org.example.mybooklibrary.payment;
 
-import lombok.RequiredArgsConstructor;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
+@Getter
+@Setter
 @RestController
 @RequestMapping("/api/payments")
-@RequiredArgsConstructor
 public class PaymentController {
 
     private final PaymentService paymentService;
 
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
     @PostMapping
-    public ResponseEntity<PaymentResponse> createPayment(@RequestBody PaymentRequest request) {
-        return ResponseEntity.ok(paymentService.createPayment(request));
+    @Operation(summary = "Create payment" , security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<Payment> createPayment(
+            @RequestParam String title,
+            @RequestParam int usageDays,
+            @RequestParam Payment.BookFormat format) {
+        Payment payment = paymentService.createPayment(title, usageDays, format);
+        return ResponseEntity.ok(payment);
     }
 
-    @GetMapping
-    public ResponseEntity<List<PaymentResponse>> getAllPayments() {
-        return ResponseEntity.ok(paymentService.getAllPayments());
-    }
 }
-

@@ -28,21 +28,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
                         .requestMatchers(
-                                "/api/auth/register",
-                                "/api/auth/login",
-                                "/api/auth/otp/**",
-                                "/api/auth/forgot-password",
-                                "/api/auth/reset-password",
+                                "/api/auth/**",
+                                "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
-                        // Secured endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/books").hasAnyRole("ADMIN", "STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/books").hasAnyAuthority("ADMIN", "STUDENT")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
@@ -52,7 +46,6 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-
         return new BCryptPasswordEncoder();
     }
 }

@@ -18,6 +18,7 @@ import java.util.*;
 
 @Service
 public class AuthService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -43,7 +44,11 @@ public class AuthService {
         }
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new ResourceNotFoundException("Email already exists");
+            throw new IllegalArgumentException("Email already exists");
+        }
+
+        if (userRepository.findByRegNo(request.getRegNo()).isPresent()) {
+            throw new IllegalArgumentException("Registration number already exists");
         }
 
         User user = new User();
@@ -56,7 +61,6 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-
     public String loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Email is not registered"));
@@ -68,8 +72,8 @@ public class AuthService {
         if (!user.isVerified()) {
             throw new IllegalArgumentException("User is not verified. Please verify your account.");
         }
-        return jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
+        return jwtUtil.generateToken(user.getEmail(), user.getRole().name());
     }
 
     public boolean verifyOtp(String email, String otp) {

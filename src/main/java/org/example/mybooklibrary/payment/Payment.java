@@ -1,34 +1,75 @@
 package org.example.mybooklibrary.payment;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.Data;
-import org.example.mybooklibrary.book.Books;
+import lombok.NoArgsConstructor;
 import org.example.mybooklibrary.user.User;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Data
 @Entity
+@Table(name = "payments")
+@Data
+@NoArgsConstructor
 public class Payment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+
+    @NotBlank(message = "Title is required")
+    private String title;
+    private int usageDays;
+    @Enumerated(EnumType.STRING)
+    private BookFormat format;
+
+    @PositiveOrZero
+    private double penalties;
+
+    @PositiveOrZero
+    private double charges;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus status;
+
+    @PastOrPresent
+    private LocalDate paymentDate;
+
+    private String location;
+
+    private String confirmationCode;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "book_id", nullable = false)
-    private Books book;
+    public Payment(String title, int usageDays, BookFormat format) {
+        this.title = title;
+        this.usageDays = usageDays;
+        this.format = format;
+        this.status = PaymentStatus.PENDING;
+        this.paymentDate = LocalDate.now();
+        this.penalties = calculatePenalties();
+        this.charges = calculateCharges();
+    }
 
-    private BigDecimal amount;
-    private String paymentMethod;
-    private String paymentStatus;
-    private String transactionId;
-    private String currency;
+    private double calculatePenalties() {
+        return usageDays > 7 ? (usageDays - 7) * 5 : 0;
+    }
 
-    private LocalDate paymentDate = LocalDate.now();
+    private double calculateCharges() {
+        double baseRate = (format == BookFormat.HARD_COPY) ? 100 : 80;
+        return baseRate + (usageDays * 10);
+    }
+
+    public enum BookFormat {
+        HARD_COPY, EBOOK, AUDIOBOOK
+    }
+
+    public enum PaymentStatus {
+        PENDING, COMPLETED, FAILED
+    }
 }

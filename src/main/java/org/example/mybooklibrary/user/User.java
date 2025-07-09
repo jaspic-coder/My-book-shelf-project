@@ -3,8 +3,11 @@ package org.example.mybooklibrary.user;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.example.mybooklibrary.payment.Payment;
+
+
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
@@ -13,6 +16,8 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Payment> payments;
 
     @Column(name = "reg_no", unique = true, nullable = false)
     private String regNo;
@@ -34,6 +39,8 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Payment> payments;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Payment> payment;
+
 }
+
