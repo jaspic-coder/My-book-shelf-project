@@ -22,7 +22,7 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .setSubject(email)
-                .claim("role", role)  // No "ROLE_" prefix here!
+                .claim("ROLE_STUDENT", role)  // No "ROLE_" prefix here!
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)

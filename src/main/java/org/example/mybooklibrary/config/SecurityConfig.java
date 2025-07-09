@@ -36,7 +36,8 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/books").hasAnyAuthority("ADMIN", "STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/books").hasAnyAuthority("ROLE_ADMIN", "ROLE_STUDENT")
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
