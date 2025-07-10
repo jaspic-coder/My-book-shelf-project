@@ -17,9 +17,9 @@ public class User {
 
     @Column(name = "reg_no", unique = true, nullable = false)
     private String regNo;
-
-    @Column(name = "college_reg_no", unique = true, nullable = false)
-    private String collegeRegNo;
+//
+//    @Column(name = "college_reg_no", unique = true, nullable = false)
+//    private String collegeRegNo;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -30,7 +30,7 @@ public class User {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    private Role role = Role.GUEST;
+    private Role role = Role.USER ;
 
     @Column(name = "is_verified")
     private boolean verified;

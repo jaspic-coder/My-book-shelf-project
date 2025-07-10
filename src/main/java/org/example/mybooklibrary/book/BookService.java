@@ -25,23 +25,21 @@ public class BookService {
         book = bookRepository.save(book);
         return mapToResponse(book);
     }
-
     public List<BookResponse> getAllBooks() {
         return bookRepository.findAll()
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
-
     public BookResponse getBookById(Long id) {
         Books book = bookRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Book with ID " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Book with ID " + id + " is not here"));
         return mapToResponse(book);
     }
 
     public BookResponse updateBook(Long id, BookRequest request) {
         Books book = bookRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Book with ID " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Book with ID " + id + " is not here"));
 
         book.setTitle(request.getTitle());
         book.setAuthor(request.getAuthor());
@@ -55,7 +53,7 @@ public class BookService {
 
     public void deleteBook(Long id) {
         if (!bookRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Book with ID " + id + " not found");
+            throw new ResourceNotFoundException("Book with ID " + id + " is not here");
         }
         bookRepository.deleteById(id);
     }
