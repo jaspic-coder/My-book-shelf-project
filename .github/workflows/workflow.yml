@@ -1,0 +1,72 @@
+name: GCR Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up Java (JDK 17)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'temurin'
+
+      # Build the Spring Boot API application
+      - name: Build with Maven
+        run: |
+          chmod +x ./mvnw
+          ./mvnw clean package -DskipTests -e -X
+
+      # Debug: List target directory
+      - name: List target directory
+        run: ls -l target
+
+      # Save the build artifact for the next job
+      - name: Save build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mybooklibrary
+          path: target/Mybooklibrary-*.jar  # Use a wildcard to match the JAR file
+
+  ghcr:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      # Check out the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Download the build artifact from the previous job
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Mybooklibrary
+          path: target
+
+      # Login to GCR
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Build and Push Docker Image to GHCR
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/mybooklibrary:latest
+            ghcr.io/${{ github.repository_owner }}/mybooklibrary:${{ github.sha }}
