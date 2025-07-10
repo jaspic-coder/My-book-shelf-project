@@ -68,5 +68,5 @@ public class BookService {
                 book.getCategory(),
                 book.getAvailabilityStatus()
                 );
-    }
+}
 }

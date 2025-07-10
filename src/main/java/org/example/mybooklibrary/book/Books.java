@@ -1,24 +1,30 @@
 package org.example.mybooklibrary.book;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
 
+import java.time.LocalDate;
 @Entity
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Books {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String title;
-    private String author;
+    private Long id ;
+    @Column(nullable = false)
+    private String Title;
+    @Column(nullable = false)
+    private String Author;
+    @Column(nullable = false)
+    private LocalDate PublishDate;
+    @Column(nullable = false,unique = true)
     private String ISBN;
-    private LocalDate publishDate;
     private String category;
-    private Boolean availabilityStatus;
+    private Boolean availabilityStatus=true;
 
 }
 

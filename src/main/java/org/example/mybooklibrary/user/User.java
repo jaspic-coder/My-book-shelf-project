@@ -2,7 +2,7 @@ package org.example.mybooklibrary.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.example.mybooklibrary.payment.Payment;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,8 +16,6 @@ public class User {
 
     @Column(name = "reg_no", unique = true, nullable = false)
     private String regNo;
-
-
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -36,6 +34,4 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Payment> payments;
 }

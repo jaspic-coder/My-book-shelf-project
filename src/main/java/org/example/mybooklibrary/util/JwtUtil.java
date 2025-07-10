@@ -1,6 +1,7 @@
 package org.example.mybooklibrary.util;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .setSubject(email)
-                .claim("ROLE_STUDENT", role)  // No "ROLE_" prefix here!
+                .claim("role", role)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)
@@ -30,18 +31,16 @@ public class JwtUtil {
     }
 
     public String getEmailFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
-                .build()
+        return Jwts.parser()
+                .setSigningKey(secret.getBytes())
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
     }
 
     public String getRoleFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
-                .build()
+        return Jwts.parser()
+                .setSigningKey(secret.getBytes())
                 .parseClaimsJws(token)
                 .getBody()
                 .get("role", String.class);
@@ -49,13 +48,9 @@ public class JwtUtil {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
-                    .build()
-                    .parseClaimsJws(token);
+            Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            // Log or handle exception here if you want
+        } catch (Exception ex) {
             return false;
         }
     }
