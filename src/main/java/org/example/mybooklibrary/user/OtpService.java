@@ -1,5 +1,6 @@
 package org.example.mybooklibrary.user;
 
+import org.example.mybooklibrary.config.EmailService;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -11,16 +12,19 @@ public class OtpService {
 
     private final Map<String, String> otpStorage = new HashMap<>();
     private final UserRepository userRepository;
-
-    public OtpService(UserRepository userRepository) {
+    private final EmailService emailService;
+    public OtpService(UserRepository userRepository, EmailService emailService) {
         this.userRepository = userRepository;
+        this.emailService = emailService;
     }
 
     public String sendOtp(String email) {
         String otp = generateOtp();
         otpStorage.put(email, otp);
-        System.out.println("OTP sent to " + email + ": " + otp);
-        return otp;
+
+        emailService.sendOtpEmail(email, otp);
+
+        return "OTP sent to your email.";
     }
 
     public boolean verifyOtp(String email, String otpInput) {
@@ -38,7 +42,7 @@ public class OtpService {
         boolean isValid = trimmedOtp.equals(storedOtp);
 
         if (isValid) {
-            otpStorage.remove(email); // Remove OTP after success
+            otpStorage.remove(email);
             userRepository.findByEmail(email).ifPresent(user -> {
                 user.setVerified(true);
                 userRepository.save(user);

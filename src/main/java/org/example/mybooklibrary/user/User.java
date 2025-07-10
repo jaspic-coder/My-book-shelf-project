@@ -29,7 +29,7 @@ public class User {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    private Role role = Role.GUEST;
+    private Role role = Role.USER ;
 
     @Column(name = "is_verified")
     private boolean verified;

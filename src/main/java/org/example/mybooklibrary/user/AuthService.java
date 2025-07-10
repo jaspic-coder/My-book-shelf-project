@@ -70,7 +70,6 @@ public class AuthService {
 
         return jwtUtil.generateToken(email);
     }
-
     public String generateOTP(String email) {
         String otp = String.format("%06d", new Random().nextInt(999999));
         otpStore.put(email, otp);
@@ -82,7 +81,6 @@ public class AuthService {
 
         return resetToken.getExpiryDate().isAfter(LocalDateTime.now());
     }
-
     public boolean  verifyOtp(String email, String otp) {
         String storedOtp = otpStore.get(email);
         if (storedOtp != null && storedOtp.equals(otp)) {
@@ -95,9 +93,8 @@ public class AuthService {
         }
         return false;
     }
-
     public String createPasswordResetToken(String email) {
-        User user = userRepository.findByEmail(email)
+         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User with email not found"));
 
         String token = UUID.randomUUID().toString();
