@@ -11,15 +11,13 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "reg_no", unique = true, nullable = false)
     private String regNo;
-//
-//    @Column(name = "college_reg_no", unique = true, nullable = false)
-//    private String collegeRegNo;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -30,7 +28,7 @@ public class User {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    private Role role = Role.USER ;
+    private Role role = Role.USER;
 
     @Column(name = "is_verified")
     private boolean verified;
@@ -41,10 +39,22 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Payment> payments;
 
-    // New fields for password reset
     @Column(name = "password_reset_token", unique = true)
     private String passwordResetToken;
 
     @Column(name = "token_expiry")
     private LocalDateTime tokenExpiry;
+
+    // Profile image path (saved file name)
+    @Column(name = "profile_image_path")
+    private String profileImagePath;
+
+    // Returns the URL path to access profile picture via controller endpoint
+    public String getProfilePictureUrl() {
+        if (profileImagePath == null || profileImagePath.isBlank()) {
+            return null;
+        }
+        return "/api/auth/" + this.id + "/profile-picture";
+    }
 }
+
