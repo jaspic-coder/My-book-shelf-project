@@ -1,12 +1,9 @@
 package org.example.mybooklibrary.user;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import lombok.Getter;
-import lombok.Setter;
 import org.example.mybooklibrary.config.EmailService;
+import org.example.mybooklibrary.exception.InvalidPasswordException;
 import org.example.mybooklibrary.exception.ResourceNotFoundException;
+import org.example.mybooklibrary.exception.UserNotFoundException;
 import org.example.mybooklibrary.passwordresettoken.PasswordResetToken;
 import org.example.mybooklibrary.passwordresettoken.PasswordResetTokenRepository;
 import org.example.mybooklibrary.util.JwtUtil;
@@ -14,11 +11,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 @Service
 public class AuthService {
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -40,15 +39,11 @@ public class AuthService {
 
     public User registerUser(RegisterRequest request) {
         if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new IllegalArgumentException("Passwords do not match");
+            throw new InvalidPasswordException("Passwords do not match");
         }
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email already exists");
-        }
-
-        if (userRepository.findByRegNo(request.getRegNo()).isPresent()) {
-            throw new IllegalArgumentException("Registration number already exists");
+            throw new ResourceNotFoundException("Email already exists");
         }
 
         User user = new User();
@@ -63,24 +58,34 @@ public class AuthService {
 
     public String loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Email is not registered"));
+                .orElseThrow(() -> new UserNotFoundException("Email is not registered"));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new IllegalArgumentException("Incorrect password");
+            throw new InvalidPasswordException("Incorrect password");
         }
 
         if (!user.isVerified()) {
-            throw new IllegalArgumentException("User is not verified. Please verify your account.");
+            throw new InvalidPasswordException("User is not verified. Please verify your account.");
         }
 
-        return jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        return jwtUtil.generateToken(email);
     }
+    public String generateOTP(String email) {
+        String otp = String.format("%06d", new Random().nextInt(999999));
+        otpStore.put(email, otp);
+        return otp;
+    }
+    public boolean isResetTokenValid(String token) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid password reset token"));
 
-    public boolean verifyOtp(String email, String otp) {
+        return resetToken.getExpiryDate().isAfter(LocalDateTime.now());
+    }
+    public boolean  verifyOtp(String email, String otp) {
         String storedOtp = otpStore.get(email);
         if (storedOtp != null && storedOtp.equals(otp)) {
             User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                    .orElseThrow(() -> new UserNotFoundException("User not found"));
             user.setVerified(true);
             userRepository.save(user);
             otpStore.remove(email);
@@ -88,10 +93,9 @@ public class AuthService {
         }
         return false;
     }
-
     public String createPasswordResetToken(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User with email not found"));
+         User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User with email not found"));
 
         String token = UUID.randomUUID().toString();
 
@@ -106,27 +110,20 @@ public class AuthService {
         return token;
     }
 
-    public boolean isResetTokenValid(String token) {
-        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
-                .orElseThrow(() -> new ResourceNotFoundException("Invalid password reset token"));
-
-        return resetToken.getExpiryDate().isAfter(LocalDateTime.now());
-    }
-
     public void resetPassword(String token, String newPassword, String confirmPassword) {
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid password reset token"));
 
         if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Token expired");
+            throw new InvalidPasswordException("Token expired");
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            throw new IllegalArgumentException("Passwords do not match");
+            throw new InvalidPasswordException("Passwords do not match");
         }
 
         User user = userRepository.findByEmail(resetToken.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);

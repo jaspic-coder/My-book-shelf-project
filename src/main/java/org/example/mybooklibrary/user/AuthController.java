@@ -1,21 +1,19 @@
 package org.example.mybooklibrary.user;
 
+import lombok.RequiredArgsConstructor;
 import org.example.mybooklibrary.passwordresettoken.ResetPasswordRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
     private final OtpService otpService;
-
-    public AuthController(AuthService authService, OtpService otpService) {
-        this.authService = authService;
-        this.otpService = otpService;
-    }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
@@ -67,6 +65,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create reset token: " + e.getMessage());
         }
     }
+
     @GetMapping("/reset-password")
     public ResponseEntity<?> validateResetToken(@RequestParam String token) {
         try {
