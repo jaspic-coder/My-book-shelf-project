@@ -34,8 +34,11 @@ public class SecurityConfig {
                         // Allow GET requests for books and reset-password URLs without auth
                         .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/reset-password/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/books/**").hasRole("ADMIN")
                         // Allow public access to these endpoints
                         .requestMatchers(
+                                "/api/upload",
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/auth/otp/**",

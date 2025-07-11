@@ -34,6 +34,7 @@ public class ImageController {
             )
             @RequestPart("files") MultipartFile[] files
     ) {
+        System.out.println("Upload start");
         return service.upload(files, "car_finder_folder")
                 .thenApply(ResponseEntity::ok);
     }
