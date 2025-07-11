@@ -21,12 +21,6 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "reg_no", unique = true, nullable = false)
-    private String regNo;
-//
-//    @Column(name = "college_reg_no", unique = true, nullable = false)
-//    private String collegeRegNo;
-
     @Column(unique = true, nullable = false)
     private String email;
 
