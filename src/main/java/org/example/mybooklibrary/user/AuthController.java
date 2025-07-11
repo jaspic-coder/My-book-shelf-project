@@ -99,7 +99,7 @@ public class AuthController {
         }
     }
 
-    // ✅ Upload or Replace Profile Picture for Logged-In User
+    //  Upload or Replace Profile Picture for Logged-In User
     @Operation(summary = "Upload or Replace Profile Picture",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     required = true,
