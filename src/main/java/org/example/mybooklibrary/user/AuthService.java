@@ -51,10 +51,18 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getUserName());
-        user.setRole(request.getRole());
+
+
+        if (request.getEmail().equalsIgnoreCase("muhimpunduan@gmail.com")) {
+            user.setRole(Role.ADMIN); // Only you get admin
+        } else {
+            user.setRole(Role.USER); // Everyone else is user
+        }
+
         user.setVerified(false);
         return userRepository.save(user);
     }
+
 
     public String loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
@@ -67,8 +75,7 @@ public class AuthService {
         if (!user.isVerified()) {
             throw new InvalidPasswordException("User is not verified. Please verify your account.");
         }
-
-        return jwtUtil.generateToken(email);
+        return jwtUtil.generateToken(user);
     }
     public String generateOTP(String email) {
         String otp = String.format("%06d", new Random().nextInt(999999));

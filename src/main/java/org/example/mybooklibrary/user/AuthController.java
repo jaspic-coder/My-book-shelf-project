@@ -25,6 +25,7 @@ public class AuthController {
         }
     }
 
+
     @PostMapping("/otp/send")
     public ResponseEntity<String> sendOTP(@RequestBody EmailRequest request) {
         String otp = otpService.sendOtp(request.getEmail());
