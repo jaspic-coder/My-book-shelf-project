@@ -54,6 +54,9 @@ public class User implements UserDetails {
     @Column(name = "token_expiry")
     private LocalDateTime tokenExpiry;
 
+    @Column(name = "profile_image_path")
+     private String profileImagePath;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role));
