@@ -37,4 +37,6 @@ public class Borrows {
     @ManyToOne
     @JoinColumn(name = "books_id")
     private Books books;
+    private String paymentId;
+    private String paymentStatus;;
 }

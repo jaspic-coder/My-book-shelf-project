@@ -55,7 +55,6 @@ public class AuthService {
         user.setVerified(false);
         return userRepository.save(user);
     }
-
     public String loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Email is not registered"));
@@ -68,8 +67,11 @@ public class AuthService {
             throw new InvalidPasswordException("User is not verified. Please verify your account.");
         }
 
-        return jwtUtil.generateToken(email);
+        // Convert Role to String before passing to generateToken
+        return jwtUtil.generateToken(email, user.getRole().name());
     }
+
+
     public String generateOTP(String email) {
         String otp = String.format("%06d", new Random().nextInt(999999));
         otpStore.put(email, otp);

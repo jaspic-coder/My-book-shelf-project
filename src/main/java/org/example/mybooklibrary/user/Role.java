@@ -1,9 +1,8 @@
 package org.example.mybooklibrary.user;
 
-public enum Role {
-    USER,
+ public enum Role {
     ADMIN,
-
+    USER
 }
 
 

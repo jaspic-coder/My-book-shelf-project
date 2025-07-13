@@ -5,21 +5,28 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.Year;
+import java.time.LocalDateTime;
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class PendingPayment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String category;
     private double amount;
+    private String currency;
+    private String description;
+    private String paymentMethod; // "CARD" or "MOMO"
+    private String transactionId;
+    private String status; // "PENDING", "COMPLETED", "FAILED"
+
+    @Column(name = "payment_year")
     private Year year;
 
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

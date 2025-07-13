@@ -2,10 +2,8 @@ package org.example.mybooklibrary.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.example.mybooklibrary.payment.Payment;
-
 import java.time.LocalDateTime;
-import java.util.List;
+
 
 @Data
 @Entity
@@ -30,7 +28,7 @@ public class User {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    private Role role = Role.USER ;
+    private Role role = Role.USER;
 
     @Column(name = "is_verified")
     private boolean verified;
@@ -38,13 +36,11 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Payment> payments;
-
     // New fields for password reset
     @Column(name = "password_reset_token", unique = true)
     private String passwordResetToken;
 
     @Column(name = "token_expiry")
     private LocalDateTime tokenExpiry;
+
 }
