@@ -24,6 +24,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Registration failed: " + e.getMessage());
         }
     }
+
     @PostMapping("/otp/send")
     public ResponseEntity<String> sendOTP(@RequestBody EmailRequest request) {
         String otp = otpService.sendOtp(request.getEmail());
@@ -33,7 +34,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
-            String token = authService.loginUser(request.getEmail(), request.getPassword());
+            String token = authService.loginUser(request.getEmail(), request.getPassword()).toString();
             return ResponseEntity.ok(token);
         } catch (Exception e) {
             return ResponseEntity.status(403).body("Login failed: " + e.getMessage());

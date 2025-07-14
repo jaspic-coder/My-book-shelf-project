@@ -10,6 +10,7 @@ public class BookRequest {
     private String isbn;
     private LocalDate publishDate;
     private String category;
+    private String imageUrl;
 
 
 }

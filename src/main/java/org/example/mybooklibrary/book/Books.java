@@ -1,9 +1,10 @@
 package org.example.mybooklibrary.book;
 
 import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 @Entity
@@ -24,8 +25,7 @@ public class Books {
     @Column(nullable = false,unique = true)
     private String ISBN;
     private String category;
-    private Boolean availabilityStatus=true;
+    private Boolean availabilityStatus=true ;
+    private String imageUrl;
 
 }
-
-

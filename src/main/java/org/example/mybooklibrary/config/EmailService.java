@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EmailService {
 
-    private final JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender ;
 
     public void sendPasswordResetEmail(String toEmail, String token) {
         String resetUrl = "https://my-book-shelf-frontend.vercel.app/auth/forgotPassword?token=" + token;
@@ -21,7 +21,7 @@ public class EmailService {
         javaMailSender.send(message);
     }
     public void sendOtpEmail(String toEmail, String otp) {
-        String subject = "📚 Your OTP Code - My Book Shelf";
+        String subject = " Your OTP Code - My Book Shelf";
         String body = "Hello,\n\nYour OTP code is: " + otp +
                 "\nIt is valid for 5 minutes." +
                 "\n\nIf you didn’t request this, please ignore the email." +

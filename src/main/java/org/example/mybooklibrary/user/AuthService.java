@@ -11,19 +11,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final Map<String, String> otpStore = new HashMap<>();
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
+    private final Map<String, String> otpStore = new HashMap<>();
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
@@ -47,7 +44,6 @@ public class AuthService {
         }
 
         User user = new User();
-        user.setRegNo(request.getRegNo());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getUserName());
@@ -55,7 +51,8 @@ public class AuthService {
         user.setVerified(false);
         return userRepository.save(user);
     }
-    public String loginUser(String email, String password) {
+
+    public Map<String, String> loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Email is not registered"));
 
@@ -67,23 +64,25 @@ public class AuthService {
             throw new InvalidPasswordException("User is not verified. Please verify your account.");
         }
 
-        // Convert Role to String before passing to generateToken
-        return jwtUtil.generateToken(email, user.getRole().name());
-    }
+        // Generate token with email, name, and role
+        String token = jwtUtil.generateToken(user);
 
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+        response.put("email", user.getEmail());
+        response.put("name", user.getName());
+        response.put("role", user.getRole().toString());
+
+        return response;
+    }
 
     public String generateOTP(String email) {
         String otp = String.format("%06d", new Random().nextInt(999999));
         otpStore.put(email, otp);
         return otp;
     }
-    public boolean isResetTokenValid(String token) {
-        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
-                .orElseThrow(() -> new ResourceNotFoundException("Invalid password reset token"));
 
-        return resetToken.getExpiryDate().isAfter(LocalDateTime.now());
-    }
-    public boolean  verifyOtp(String email, String otp) {
+    public boolean verifyOtp(String email, String otp) {
         String storedOtp = otpStore.get(email);
         if (storedOtp != null && storedOtp.equals(otp)) {
             User user = userRepository.findByEmail(email)
@@ -95,8 +94,15 @@ public class AuthService {
         }
         return false;
     }
+
+    public boolean isResetTokenValid(String token) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid password reset token"));
+        return resetToken.getExpiryDate().isAfter(LocalDateTime.now());
+    }
+
     public String createPasswordResetToken(String email) {
-         User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User with email not found"));
 
         String token = UUID.randomUUID().toString();
