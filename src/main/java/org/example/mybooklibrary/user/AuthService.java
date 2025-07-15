@@ -51,17 +51,40 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getUserName());
 
-
         if (request.getEmail().equalsIgnoreCase("muhimpunduan@gmail.com")) {
-            user.setRole(Role.ADMIN); // Only you get admin
+            user.setRole(Role.ADMIN);
         } else {
-            user.setRole(Role.USER); // Everyone else is user
+            user.setRole(Role.USER);
         }
 
         user.setVerified(false);
         return userRepository.save(user);
     }
 
+    public User createUserByAdmin(AuthController.CreateUserRequest request) {
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new InvalidPasswordException("Passwords do not match");
+        }
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new ResourceNotFoundException("Email already exists");
+        }
+
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setName(request.getUserName());
+        user.setRole(request.getRole() != null ? request.getRole() : Role.USER);
+        user.setVerified(true);  // Admin created users are auto-verified
+
+        return userRepository.save(user);
+    }
+
+    public void sendPasswordResetEmail(String email) {
+        String token = createPasswordResetToken(email);
+        String resetLink = "https://my-book-shelf-frontend.vercel.app/auth/reset-password?token=" + token + "&email=" + email;
+        emailService.sendPasswordResetEmail(email, token);
+    }
 
     public String loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
@@ -76,18 +99,21 @@ public class AuthService {
         }
         return jwtUtil.generateToken(user);
     }
+
     public String generateOTP(String email) {
         String otp = String.format("%06d", new Random().nextInt(999999));
         otpStore.put(email, otp);
         return otp;
     }
+
     public boolean isResetTokenValid(String token) {
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid password reset token"));
 
         return resetToken.getExpiryDate().isAfter(LocalDateTime.now());
     }
-    public boolean  verifyOtp(String email, String otp) {
+
+    public boolean verifyOtp(String email, String otp) {
         String storedOtp = otpStore.get(email);
         if (storedOtp != null && storedOtp.equals(otp)) {
             User user = userRepository.findByEmail(email)
@@ -99,8 +125,9 @@ public class AuthService {
         }
         return false;
     }
+
     public String createPasswordResetToken(String email) {
-         User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User with email not found"));
 
         String token = UUID.randomUUID().toString();
@@ -135,10 +162,5 @@ public class AuthService {
         userRepository.save(user);
 
         passwordResetTokenRepository.delete(resetToken);
-    }
-
-    public void sendPasswordResetEmail(String email) {
-        String token = createPasswordResetToken(email);
-        emailService.sendPasswordResetEmail(email, token);
     }
 }

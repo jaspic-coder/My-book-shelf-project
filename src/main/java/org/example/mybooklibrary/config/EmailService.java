@@ -12,7 +12,7 @@ public class EmailService {
     private final JavaMailSender javaMailSender ;
 
     public void sendPasswordResetEmail(String toEmail, String token) {
-        String resetUrl = "https://my-book-shelf-frontend.vercel.app/auth/forgotPassword?token=" + token;
+        String resetUrl = "https://my-book-shelf-frontend.vercel.app/auth/reset-password?token=" + token;
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
         message.setSubject("Password Reset Request");
