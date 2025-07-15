@@ -3,6 +3,7 @@ package org.example.mybooklibrary.Borrow;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.example.mybooklibrary.Payment.Payments;
 import org.example.mybooklibrary.book.Books;
 import org.example.mybooklibrary.user.User;
 
@@ -38,5 +39,7 @@ public class Borrows {
     @JoinColumn(name = "books_id")
     private Books books;
     private String paymentId;
-    private String paymentStatus;;
+    private String paymentStatus;
+    @ManyToOne
+private Payments payments;
 }

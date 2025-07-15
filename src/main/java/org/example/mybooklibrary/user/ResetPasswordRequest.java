@@ -1,5 +1,7 @@
 package org.example.mybooklibrary.user;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 @Data

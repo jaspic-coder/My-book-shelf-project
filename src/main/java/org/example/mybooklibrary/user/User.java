@@ -4,12 +4,15 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 
+import org.example.mybooklibrary.book.Books;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
+import java.awt.print.Book;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -38,12 +41,15 @@ public class User implements UserDetails {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<Pay> payments;
-
-    // New fields for password reset
-    @Column(name = "password_reset_token", unique = true)
+    // If it's a single value field (not a collection)
+    @Column(name = "password_reset_token")
     private String passwordResetToken;
+
+    // OR if it should be a collection (multiple tokens)
+    @ElementCollection
+    @CollectionTable(name = "user_password_reset_tokens",
+            joinColumns = @JoinColumn(name = "user_id"))
+    private List<String> passwordResetTokens;
 
     @Column(name = "token_expiry")
     private LocalDateTime tokenExpiry;

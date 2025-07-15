@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.mybooklibrary.Payment.Payments;
 
 import java.time.LocalDate;
 @Entity
@@ -27,5 +28,7 @@ public class Books {
     private String category;
     private Boolean availabilityStatus=true ;
     private String imageUrl;
+    @ManyToOne
+    private Payments payments;
 
 }
