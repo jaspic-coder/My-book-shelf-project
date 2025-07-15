@@ -47,7 +47,7 @@ public class PaymentService {
     private PaymentResponse mapToResponse(Payment payment) {
         return new PaymentResponse(
                 payment.getId(),
-                payment.getUser().getName(),
+                payment.getUser().getUsername(),
                 payment.getBook().getTitle(),
                 payment.getAmount(),
                 payment.getPaymentMethod(),

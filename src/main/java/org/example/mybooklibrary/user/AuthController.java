@@ -5,6 +5,8 @@ import org.example.mybooklibrary.passwordresettoken.ResetPasswordRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -83,17 +85,6 @@ public class AuthController {
         }
     }
 
-//    @GetMapping("/reset-password")
-//    public ResponseEntity<?> validateResetToken(@RequestParam String token) {
-//        try {
-//            boolean valid = authService.isResetTokenValid(token);
-//            return valid
-//                    ? ResponseEntity.ok(Map.of("message", "Token is valid. You can reset your password."))
-//                    : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Token is invalid or expired."));
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error validating token."));
-//        }
-//    }
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(
             @RequestParam String token,  // <-- token from URL
@@ -109,7 +100,7 @@ public class AuthController {
     }
 
 
-    @Operation(summary = "Upload or Replace Profile Picture",
+    @Operation(summary = "Upload Profile Picture",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     required = true,
                     content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
@@ -154,6 +145,16 @@ public class AuthController {
             return ResponseEntity.badRequest().body("User creation failed: " + e.getMessage());
         }
     }
+
+    @PatchMapping("/profile")
+    public ResponseEntity<?> editProfile(@RequestBody UserProfileRequest request,
+                                         @AuthenticationPrincipal UserDetails principal) {
+        String currentUserEmail = principal.getUsername();
+        AuthService userService = null;
+        User updatedUser = userService.updateProfile(currentUserEmail, request);
+        return ResponseEntity.ok(updatedUser);
+    }
+
 
 
     public static class CreateUserRequest {

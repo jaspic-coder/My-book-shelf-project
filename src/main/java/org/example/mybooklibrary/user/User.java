@@ -2,7 +2,6 @@ package org.example.mybooklibrary.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.example.mybooklibrary.book.Books;
 import org.example.mybooklibrary.payment.Payment;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,7 +26,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    private String name;
+    @Column(unique = true)
+    private String username;
+
 
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER ;
@@ -51,13 +52,15 @@ public class User implements UserDetails {
     @Column(name = "profile_image_path")
     private String profileImagePath;
 
+    @Column(length = 500)
+    private String bio;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
-    //@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    //private List<Books > books ;
+
     @Override
     public String getUsername() {
         return this.email;

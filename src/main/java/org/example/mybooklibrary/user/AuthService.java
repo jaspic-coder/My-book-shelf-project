@@ -49,7 +49,7 @@ public class AuthService {
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setName(request.getUserName());
+        user.setUsername(request.getUserName());
 
         if (request.getEmail().equalsIgnoreCase("muhimpunduan@gmail.com")) {
             user.setRole(Role.ADMIN);
@@ -73,7 +73,7 @@ public class AuthService {
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setName(request.getUserName());
+        user.setUsername(request.getUserName());
         user.setRole(request.getRole() != null ? request.getRole() : Role.USER);
         user.setVerified(true);  // Admin created users are auto-verified
 
@@ -163,4 +163,26 @@ public class AuthService {
 
         passwordResetTokenRepository.delete(resetToken);
     }
+
+    public User updateProfile(String userEmail, UserProfileRequest request) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (request.getUsername() != null && !request.getUsername().isBlank()) {
+            // Optional: check if username is already taken by another user
+            boolean exists = userRepository.existsByUsernameAndEmailNot(request.getUsername(), userEmail);
+            if (exists) {
+                throw new RuntimeException("Username already taken");
+            }
+            user.setUsername(request.getUsername());
+        }
+
+        if (request.getBio() != null && !request.getBio().isBlank()) {
+            user.setBio(request.getBio());
+        }
+
+        return userRepository.save(user);
+    }
+
+
 }
