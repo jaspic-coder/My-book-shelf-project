@@ -30,7 +30,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getServletPath();
-        if (path.startsWith("/api/auth")) {
+
+
+        if (
+                path.equals("/api/auth/login") ||
+                        path.equals("/api/auth/register") ||
+                        path.startsWith("/api/auth/otp") ||
+                        path.equals("/api/auth/forgot-password") ||
+                        path.startsWith("/api/auth/reset-password") ||
+                        path.startsWith("/swagger") ||
+                        path.startsWith("/v3/api-docs") ||
+                        path.startsWith("/webjars")
+        ) {
             chain.doFilter(request, response);
             return;
         }
@@ -39,15 +50,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = null;
         String email = null;
 
+
         if (header != null && header.startsWith("Bearer ")) {
             token = header.substring(7);
-            email = jwtUtil.getEmailFromToken(token); // You already have this
+            email = jwtUtil.getEmailFromToken(token);
         }
+
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (jwtUtil.validateToken(token)) {
-
-
                 User user = jwtUtil.extractUserDetails(token);
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
@@ -57,7 +68,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
 
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }

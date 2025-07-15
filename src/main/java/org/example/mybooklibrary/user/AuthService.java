@@ -11,16 +11,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 @Service
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final Map<String, String> otpStore = new HashMap<>();
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
-    private final Map<String, String> otpStore = new HashMap<>();
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
@@ -47,12 +50,43 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getUserName());
-        user.setRole(request.getRole());
+
+        if (request.getEmail().equalsIgnoreCase("muhimpunduan@gmail.com")) {
+            user.setRole(Role.ADMIN);
+        } else {
+            user.setRole(Role.USER);
+        }
+
         user.setVerified(false);
         return userRepository.save(user);
     }
 
-    public Map<String, String> loginUser(String email, String password) {
+    public User createUserByAdmin(AuthController.CreateUserRequest request) {
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new InvalidPasswordException("Passwords do not match");
+        }
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new ResourceNotFoundException("Email already exists");
+        }
+
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setName(request.getUserName());
+        user.setRole(request.getRole() != null ? request.getRole() : Role.USER);
+        user.setVerified(true);  // Admin created users are auto-verified
+
+        return userRepository.save(user);
+    }
+
+    public void sendPasswordResetEmail(String email) {
+        String token = createPasswordResetToken(email);
+        String resetLink = "https://my-book-shelf-frontend.vercel.app/auth/reset-password?token=" + token + "&email=" + email;
+        emailService.sendPasswordResetEmail(email, token);
+    }
+
+    public String loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Email is not registered"));
 
@@ -63,23 +97,20 @@ public class AuthService {
         if (!user.isVerified()) {
             throw new InvalidPasswordException("User is not verified. Please verify your account.");
         }
-
-        // Generate token with email, name, and role
-        String token = jwtUtil.generateToken(user);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("token", token);
-        response.put("email", user.getEmail());
-        response.put("name", user.getName());
-        response.put("role", user.getRole().toString());
-
-        return response;
+        return jwtUtil.generateToken(user);
     }
 
     public String generateOTP(String email) {
         String otp = String.format("%06d", new Random().nextInt(999999));
         otpStore.put(email, otp);
         return otp;
+    }
+
+    public boolean isResetTokenValid(String token) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid password reset token"));
+
+        return resetToken.getExpiryDate().isAfter(LocalDateTime.now());
     }
 
     public boolean verifyOtp(String email, String otp) {
@@ -93,12 +124,6 @@ public class AuthService {
             return true;
         }
         return false;
-    }
-
-    public boolean isResetTokenValid(String token) {
-        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
-                .orElseThrow(() -> new ResourceNotFoundException("Invalid password reset token"));
-        return resetToken.getExpiryDate().isAfter(LocalDateTime.now());
     }
 
     public String createPasswordResetToken(String email) {
@@ -137,10 +162,5 @@ public class AuthService {
         userRepository.save(user);
 
         passwordResetTokenRepository.delete(resetToken);
-    }
-
-    public void sendPasswordResetEmail(String email) {
-        String token = createPasswordResetToken(email);
-        emailService.sendPasswordResetEmail(email, token);
     }
 }
