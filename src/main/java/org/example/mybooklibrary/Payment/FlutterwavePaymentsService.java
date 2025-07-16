@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-class FLutterwavePaymentsService {
-    private static final Logger logger = LoggerFactory.getLogger(FLutterwavePaymentsService.class);
+class FlutterwavePaymentsService {
+    private static final Logger logger = LoggerFactory.getLogger(FlutterwavePaymentsService.class);
 
     @Value("${FLUTTERWAVE_SECRET_KEY}")
     private String secretKey;
@@ -27,7 +27,7 @@ class FLutterwavePaymentsService {
     private final PaymentsRepository paymentRepo;
     private final RestTemplate restTemplate;
 
-    public FLutterwavePaymentsService(PaymentsRepository paymentRepo, RestTemplate restTemplate) {
+    public FlutterwavePaymentsService(PaymentsRepository paymentRepo, RestTemplate restTemplate) {
         this.paymentRepo = paymentRepo;
         this.restTemplate = restTemplate;
     }

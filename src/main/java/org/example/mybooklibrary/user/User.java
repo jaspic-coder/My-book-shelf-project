@@ -2,7 +2,7 @@ package org.example.mybooklibrary.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
+import org.example.mybooklibrary.Payment.Payments;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,7 +27,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    private String name;
+    @Column(unique = true)
+    private String username;
+
 
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER ;
@@ -38,15 +40,12 @@ public class User implements UserDetails {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // If it's a single value field (not a collection)
-    @Column(name = "password_reset_token")
-    private String passwordResetToken;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Payments> payments;
 
-    // OR if it should be a collection (multiple tokens)
-    @ElementCollection
-    @CollectionTable(name = "user_password_reset_tokens",
-            joinColumns = @JoinColumn(name = "user_id"))
-    private List<String> passwordResetTokens;
+    // New fields for password reset
+    @Column(name = "password_reset_token", unique = true)
+    private String passwordResetToken;
 
     @Column(name = "token_expiry")
     private LocalDateTime tokenExpiry;
@@ -54,13 +53,15 @@ public class User implements UserDetails {
     @Column(name = "profile_image_path")
     private String profileImagePath;
 
+    @Column(length = 500)
+    private String bio;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
-    //@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    //private List<Books > books ;
+
     @Override
     public String getUsername() {
         return this.email;
@@ -85,11 +86,5 @@ public class User implements UserDetails {
         return UserDetails.super.isEnabled();
     }
 
-    public void setRole(String role) {
-
-    }
-
-    public void setRole(Role role) {
-    }
 }
 

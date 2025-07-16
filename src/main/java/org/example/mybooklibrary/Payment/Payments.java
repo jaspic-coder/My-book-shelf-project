@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.mybooklibrary.book.Books;
+import org.example.mybooklibrary.user.User;
 
 import java.time.LocalDateTime;
 
@@ -34,5 +35,6 @@ public class Payments {
     private LocalDateTime paymentTime;
     @ManyToOne
 private Books books;
+
 }
 
