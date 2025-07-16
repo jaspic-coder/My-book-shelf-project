@@ -4,15 +4,12 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 
-import org.example.mybooklibrary.book.Books;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
-import java.awt.print.Book;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -90,6 +87,9 @@ public class User implements UserDetails {
 
     public void setRole(String role) {
 
+    }
+
+    public void setRole(Role role) {
     }
 }
 

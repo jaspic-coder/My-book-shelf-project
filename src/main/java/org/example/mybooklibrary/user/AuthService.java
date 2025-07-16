@@ -1,5 +1,4 @@
 package org.example.mybooklibrary.user;
-
 import org.example.mybooklibrary.config.EmailService;
 import org.example.mybooklibrary.exception.InvalidPasswordException;
 import org.example.mybooklibrary.exception.ResourceNotFoundException;
@@ -36,7 +35,6 @@ public class AuthService {
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.emailService = emailService;
     }
-
     public User registerUser(RegisterRequest request) {
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new InvalidPasswordException("Passwords do not match");
@@ -52,9 +50,9 @@ public class AuthService {
         user.setName(request.getUserName());
 
         if (request.getEmail().equalsIgnoreCase("muhimpunduan@gmail.com")) {
-            user.setRole(Role.ADMIN);
+            user.setRole(String.valueOf(Role.ADMIN));
         } else {
-            user.setRole(Role.USER);
+            user.setRole(String.valueOf(Role.USER));
         }
 
         user.setVerified(false);
@@ -128,7 +126,7 @@ public class AuthService {
 
     public String createPasswordResetToken(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User with email not found"));
+                .orElseThrow(() -> new UserNotFoundException("Userwith email not found"));
 
         String token = UUID.randomUUID().toString();
 
@@ -155,6 +153,7 @@ public class AuthService {
             throw new InvalidPasswordException("Passwords do not match");
         }
 
+
         User user = userRepository.findByEmail(resetToken.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
@@ -162,5 +161,5 @@ public class AuthService {
         userRepository.save(user);
 
         passwordResetTokenRepository.delete(resetToken);
-    }
+}
 }
