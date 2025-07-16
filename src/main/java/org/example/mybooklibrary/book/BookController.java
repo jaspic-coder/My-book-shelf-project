@@ -13,6 +13,7 @@ import java.util.List;
 public class BookController {
 
     private final BookService bookService;
+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<BookResponse> createBook(@RequestBody BookRequest request) {
@@ -29,15 +30,16 @@ public class BookController {
         return ResponseEntity.ok(bookService.getBookById(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<BookResponse> updateBook(@PathVariable Long id, @RequestBody BookRequest request) {
         return ResponseEntity.ok(bookService.updateBook(id, request));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
         return ResponseEntity.noContent().build();
     }
 }
-

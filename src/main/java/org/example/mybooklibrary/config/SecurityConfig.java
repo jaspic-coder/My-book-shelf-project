@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/admin/create-user").hasRole("ADMIN")
                         .requestMatchers(
                                 "/api/upload",
+                                "/api/contact",
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/auth/otp/**",
