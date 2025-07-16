@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,9 +14,11 @@ public class BookResponse {
     private String title;
     private String author;
     private String isbn;
-    private String publisher;
-    private LocalDate publishedDate;
+    private String publisher;  // keep null or add in future
+    private LocalDate publishDate;
     private String category;
-    private Boolean availabilityStatus;
-
+    private Boolean available;
+    private Integer rating;
+    private String coverUrl;
+    private String bookUrl;
 }

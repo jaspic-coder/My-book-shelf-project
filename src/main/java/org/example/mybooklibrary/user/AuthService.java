@@ -38,7 +38,8 @@ public class AuthService {
     }
 
     public User registerUser(RegisterRequest request) {
-        if (!request.getPassword().equals(request.getConfirmPassword())) {
+        if (!request.getPassword().equals(request.getConfirmPassword()))
+        {
             throw new InvalidPasswordException("Passwords do not match");
         }
 
@@ -62,7 +63,8 @@ public class AuthService {
     }
 
     public User createUserByAdmin(AuthController.CreateUserRequest request) {
-        if (!request.getPassword().equals(request.getConfirmPassword())) {
+        if (!request.getPassword().equals(request.getConfirmPassword()))
+        {
             throw new InvalidPasswordException("Passwords do not match");
         }
 
@@ -75,7 +77,7 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setUsername(request.getUserName());
         user.setRole(request.getRole() != null ? request.getRole() : Role.USER);
-        user.setVerified(true);  // Admin created users are auto-verified
+        user.setVerified(true);
 
         return userRepository.save(user);
     }

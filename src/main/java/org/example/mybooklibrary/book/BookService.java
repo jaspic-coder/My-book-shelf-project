@@ -17,20 +17,25 @@ public class BookService {
         Books book = new Books();
         book.setTitle(request.getTitle());
         book.setAuthor(request.getAuthor());
-        book.setISBN(request.getIsbn());
+        book.setIsbn(request.getIsbn());
         book.setPublishDate(request.getPublishDate());
         book.setCategory(request.getCategory());
-        book.setAvailabilityStatus(true);
+        book.setAvailable(request.getAvailable() != null ? request.getAvailable() : true);
+        book.setRating(request.getRating() != null ? request.getRating() : 0);
+        book.setCoverUrl(request.getCoverUrl());
+        book.setBookUrl(request.getBookUrl());
 
         book = bookRepository.save(book);
         return mapToResponse(book);
     }
+
     public List<BookResponse> getAllBooks() {
         return bookRepository.findAll()
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
+
     public BookResponse getBookById(Long id) {
         Books book = bookRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Book with ID " + id + " is not here"));
@@ -43,9 +48,13 @@ public class BookService {
 
         book.setTitle(request.getTitle());
         book.setAuthor(request.getAuthor());
-        book.setISBN(request.getIsbn());
+        book.setIsbn(request.getIsbn());
         book.setPublishDate(request.getPublishDate());
         book.setCategory(request.getCategory());
+        book.setAvailable(request.getAvailable() != null ? request.getAvailable() : book.getAvailable());
+        book.setRating(request.getRating() != null ? request.getRating() : book.getRating());
+        book.setCoverUrl(request.getCoverUrl());
+        book.setBookUrl(request.getBookUrl());
 
         book = bookRepository.save(book);
         return mapToResponse(book);
@@ -63,11 +72,14 @@ public class BookService {
                 book.getId(),
                 book.getTitle(),
                 book.getAuthor(),
-                book.getISBN(),
-                null,
+                book.getIsbn(),
+                null,  // publisher to add later if needed
                 book.getPublishDate(),
                 book.getCategory(),
-                book.getAvailabilityStatus()
+                book.getAvailable(),
+                book.getRating(),
+                book.getCoverUrl(),
+                book.getBookUrl()
         );
     }
 }
