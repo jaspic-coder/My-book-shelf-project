@@ -155,6 +155,10 @@ public class AuthController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() {
+        return ResponseEntity.ok("Logout successful");
+    }
 
 
     public static class CreateUserRequest {
